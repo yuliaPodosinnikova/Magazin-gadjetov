@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Инвентарь — Кибер-Арена</title>
+<script src="items.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0e17; color: #fff; min-height: 100vh; position: relative; }
+.image-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; overflow: hidden; }
+.image-background img { position: absolute; top: 50%; left: 50%; width: 177.78vh !important; height: 100vh !important; min-height: 100vh !important; min-width: 100vw !important; transform: translate(-50%, -50%) !important; object-fit: cover; pointer-events: none; display: block !important; }
+@media (min-aspect-ratio: 16/9) { .image-background img { width: 100vw !important; height: 56.25vw !important; } }
+.image-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 14, 23, 0.85); z-index: -1; pointer-events: none; }
+@media (max-width: 768px) { .image-background, .image-overlay { display: none; } body { background: #0a0e17; } }
+.steam-header { background: rgba(21, 33, 42, 0.98); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(42, 52, 68, 0.6); padding: 12px 20px; position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.user-bar { display: flex; align-items: center; gap: 12px; }
+.avatar-sm { width: 72px; height: 72px; position: relative; display: flex; align-items: center; justify-content: center; }
+.avatar-sm img.avatar-img { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; display: none; z-index: 1; }
+.avatar-sm .avatar-placeholder { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a5f, #1976d2); color: #fff; font-weight: 700; font-size: 24px; border-radius: 12px; z-index: 1; }
+.avatar-sm img.frame-img { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 88px; height: 88px; pointer-events: none; display: none; z-index: 2; }
+.avatar-sm img.frame-img.active { display: block; }
+.username { color: #64b5f6; font-size: 14px; font-weight: 500; }
+.balance { background: #1e3a5f; color: #fff; padding: 6px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; border: 2px solid rgba(100, 181, 246, 0.5); }
+.back-link { color: #64b5f6; text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(42, 52, 68, 0.6); }
+.back-link:hover { background: rgba(25, 118, 210, 0.3); }
+.main { max-width: 1300px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+.page-title { font-size: 20px; font-weight: 600; color: #64b5f6; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid rgba(100, 181, 246, 0.3); }
+.filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; background: rgba(21, 33, 42, 0.98); padding: 10px; border-radius: 12px; border: 2px solid rgba(42, 52, 68, 0.6); }
+.filter-btn { background: none; border: 1px solid rgba(42, 52, 68, 0.6); color: #b0bec5; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.filter-btn:hover, .filter-btn.active { background: #1976d2; color: #fff; border-color: #64b5f6; }
+.items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.item-card { background: rgba(21, 33, 42, 0.98); border: 2px solid transparent; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; position: relative; transition: 0.3s; }
+.item-card:hover { border-color: #64b5f6; transform: translateY(-3px); }
+.item-card.equipped { border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,0.3); }
+.item-image { width: 100%; aspect-ratio: 1; background: rgba(30, 42, 56, 0.95); border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(42, 52, 68, 0.8); overflow: hidden; }
+.item-image img { width: 100%; height: 100%; object-fit: cover; }
+.item-image.video-bg { background: linear-gradient(135deg, #1e3a5f, #1976d2); }
+.item-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-collection { font-size: 11px; color: #90a4ae; margin-bottom: 8px; }
+.item-rarity { font-size: 10px; padding: 4px 10px; border-radius: 6px; display: inline-block; font-weight: 600; }
+.rarity-common { background: rgba(84, 110, 122, 0.9); color: #fff; }
+.rarity-rare { background: rgba(66, 165, 245, 0.9); color: #fff; }
+.rarity-epic { background: rgba(171, 71, 188, 0.9); color: #fff; }
+.rarity-legendary { background: #ffd54f; color: #000; }
+.equip-badge { position: absolute; top: 8px; right: 8px; background: #4caf50; color: #fff; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; }
+.equip-btn { width: 100%; margin-top: 10px; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
+.equip-btn.equip { background: #1976d2; color: #fff; }
+.equip-btn.equip:hover { background: #1e88e5; }
+.equip-btn.unequip { background: #4caf50; color: #fff; }
+.equip-btn.unequip:hover { background: #66bb6a; }
+@media (min-width: 1000px) { .content-wrapper { display: grid; grid-template-columns: 1fr 280px; gap: 20px; } }
+.sidebar { background: rgba(21, 33, 42, 0.98); border-radius: 12px; padding: 20px; border: 2px solid rgba(42, 52, 68, 0.6); height: fit-content; position: sticky; top: 80px; }
+.sidebar h4 { color: #64b5f6; font-size: 15px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgba(100, 181, 246, 0.3); }
+.sidebar-row { display: flex; justify-content: space-between; font-size: 13px; padding: 10px 0; border-bottom: 1px solid rgba(42, 52, 68, 0.4); }
+.sidebar-row:last-child { border-bottom: none; }
+.sidebar-val { color: #64b5f6; font-weight: 600; }
+.sidebar-btn { width: 100%; background: #1976d2; color: #fff; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 20px; }
+.sidebar-btn:hover { background: #1e88e5; }
+.empty-state { text-align: center; padding: 40px 20px; color: #78909c; }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: rgba(21, 33, 42, 0.98); border: 2px solid rgba(42, 52, 68, 0.6); border-radius: 10px; padding: 14px 20px; z-index: 1000; animation: slideIn 0.3s; }
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="image-background">
+<img src="https://images.steamusercontent.com/ugc/938321006093510420/861A14EB509B97F6FA21B12F450EF123D987ADD5/?imw=512&imh=288&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true" alt="Background">
+</div>
+<div class="image-overlay"></div>
+<header class="steam-header">
+<div class="header-inner">
+<div class="user-bar">
+<div class="avatar-sm" id="avatarSm">
+<img class="avatar-img" id="avatarImg" src="ava.jpeg" alt="Avatar">
+<span class="avatar-placeholder" id="avatarPlaceholder">A1</span>
+<img class="frame-img" id="frameImg" src="" alt="Frame">
+</div>
+<span class="username">Мега скебоб</span>
+</div>
+<span class="balance" id="balanceSm">1000 ₽</span>
+<a href="index.html" class="back-link" target="_blank">← Профиль</a>
+</div>
+</header>
+<main class="main">
+<h1 class="page-title">Ваши предметы</h1>
+<div class="filters">
+<button class="filter-btn active" onclick="filterItems('all')">Все</button>
+<button class="filter-btn" onclick="filterItems('frame')">Рамки</button>
+<button class="filter-btn" onclick="filterItems('background')">Фоны</button>
+<button class="filter-btn" onclick="filterItems('equipped')">Надето</button>
+</div>
+<div class="content-wrapper">
+<div class="items-grid" id="itemsGrid"></div>
+<aside class="sidebar">
+<h4>Статистика</h4>
+<div class="sidebar-row"><span>Всего предметов:</span><span class="sidebar-val" id="totalItems">0</span></div>
+<div class="sidebar-row"><span>Надето:</span><span class="sidebar-val" id="equippedCount">0</span></div>
+<button class="sidebar-btn" onclick="window.open('shop.html','_blank')">В магазин</button>
+</aside>
+</div>
+</main>
+<div id="toastContainer"></div>
+<script>
+let purchased = JSON.parse(localStorage.getItem('purchased')) || ['fr1','bg1'];
+let equipped = JSON.parse(localStorage.getItem('equipped')) || {frame:'fr1',background:'bg1'};
+let currentFilter = 'all';
+function init() { loadProfile(); renderInventory(); updateStats(); }
+function loadProfile() {
+const balance = localStorage.getItem('balance') || 1000;
+document.getElementById('balanceSm').textContent = balance + ' ₽';
+const eq = JSON.parse(localStorage.getItem('equipped')) || {frame:'fr1'};
+const avatarImg = document.getElementById('avatarImg');
+const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+avatarImg.onerror = function() { this.style.display='none'; avatarPlaceholder.style.display='flex'; };
+avatarImg.onload = function() { this.style.display='block'; avatarPlaceholder.style.display='none'; };
+if(avatarImg.complete) avatarImg.onload();
+const frameImg = document.getElementById('frameImg');
+const frameId = eq.frame || 'fr1';
+const frameItem = ITEMS_DB.find(i => i.id === frameId);
+frameImg.classList.remove('active');
+frameImg.src = '';
+if(frameItem && frameItem.image && purchased.includes(frameId)){
+const src = frameItem.image.trim() + '?t=' + Date.now();
+frameImg.src = src;
+frameImg.onload = function() { frameImg.classList.add('active'); };
+if(frameImg.complete) frameImg.onload();
+}
+}
+function renderInventory() {
+const grid = document.getElementById('itemsGrid');
+let items = ITEMS_DB.filter(item => purchased.includes(item.id));
+if(currentFilter === 'equipped') {
+items = items.filter(i => (i.type==='frame'&&equipped.frame===i.id)||(i.type==='background'&&equipped.background===i.id));
+} else if(currentFilter !== 'all') {
+items = items.filter(i => i.type === currentFilter);
+}
+if(items.length === 0) {
+grid.innerHTML = '<div class="empty-state"><div class="icon"></div><p>Пока пусто</p><button class="filter-btn" onclick="window.open(\'shop.html\',\'_blank\')" style="margin-top:12px">В магазин</button></div>';
+updateStats(); return;
+}
+const rarityColors = {common:'#546e7a',rare:'#42a5f5',epic:'#ab47bc',legendary:'#ffd54f'};
+const rarityNames = {common:'Обычный',rare:'Редкий',epic:'Эпик',legendary:'Легендарный'};
+const collectionNames = {arena:'Арена',special:'Спец.',default:'Базовая'};
+grid.innerHTML = items.map(item => {
+const isEquipped = (item.type==='frame'&&equipped.frame===item.id)||(item.type==='background'&&equipped.background===item.id);
+let preview;
+if(item.type === 'background' && item.image === 'video'){
+preview = '<div class="item-image video-bg" style="font-size:32px">🎬</div>';
+} else if(item.image){
+preview = `<div class="item-image"><img src="${item.image}" alt="${item.name}"></div>`;
+} else {
+preview = `<div class="item-image"><span style="font-size:28px">${item.name.charAt(0)}</span></div>`;
+}
+return `<div class="item-card ${isEquipped?'equipped':''}" data-id="${item.id}" data-type="${item.type}">
+${isEquipped?'<span class="equip-badge">Надето</span>':''}
+${preview}
+<div class="item-name">${item.name}</div>
+<div class="item-collection">${collectionNames[item.collection]||item.collection}</div>
+<span class="item-rarity" style="background:${rarityColors[item.rarity]};color:${item.rarity==='legendary'?'#000':'#fff'}">${rarityNames[item.rarity]}</span>
+<button class="equip-btn ${isEquipped?'unequip':'equip'}" onclick="event.stopPropagation();toggleEquip('${item.id}','${item.type}')">
+${isEquipped?'Снять':'Надеть'}
+</button>
+</div>`;
+}).join('');
+updateStats();
+}
+function filterItems(type) {
+currentFilter = type;
+document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+event.target.classList.add('active');
+renderInventory();
+}
+function toggleEquip(itemId, itemType) {
+if(itemType === 'frame') {
+if(equipped.frame === itemId) { equipped.frame = 'fr1'; } else { equipped.frame = itemId; }
+} else if(itemType === 'background') {
+if(equipped.background === itemId) { equipped.background = 'bg1'; } else { equipped.background = itemId; }
+}
+localStorage.setItem('equipped', JSON.stringify(equipped));
+const item = ITEMS_DB.find(i => i.id === itemId);
+showToast(`${item.name} ${equipped[itemType]===itemId?'надет':'снят'}`);
+renderInventory();
+loadProfile();
+}
+function updateStats() {
+const total = ITEMS_DB.filter(i => purchased.includes(i.id)).length;
+const equippedCount = Object.values(equipped).filter(id => purchased.includes(id)).length;
+document.getElementById('totalItems').textContent = total;
+document.getElementById('equippedCount').textContent = equippedCount;
+}
+function showToast(msg) {
+const toast = document.createElement('div');
+toast.className = 'toast';
+toast.textContent = msg;
+document.getElementById('toastContainer').appendChild(toast);
+setTimeout(() => toast.remove(), 3000);
+}
+document.addEventListener('DOMContentLoaded', init);
+window.addEventListener('storage', (e) => {
+if(['purchased','equipped','balance'].includes(e.key)) {
+purchased = JSON.parse(localStorage.getItem('purchased')) || [];
+equipped = JSON.parse(localStorage.getItem('equipped')) || {};
+renderInventory(); updateStats(); loadProfile();
+}
+});
+</script>
+</body>
+</html>

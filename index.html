@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кибер-Арена — Профиль</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#0a0e17;color:#fff;min-height:100vh;padding:20px;position:relative}
+.video-background{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;overflow:hidden}
+.video-background iframe{position:absolute;top:50%;left:50%;width:177.78vh!important;height:100vh!important;min-height:100vh!important;min-width:100vw!important;transform:translate(-50%,-50%)!important;border:none;pointer-events:none;display:block!important}
+@media(min-aspect-ratio:16/9){.video-background iframe{width:100vw!important;height:56.25vw!important}}
+.video-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,0.85);z-index:-1;pointer-events:none}
+@media(max-width:768px){.video-background,.video-overlay{display:none}body{background:#0a0e17}}
+.container{max-width:1100px;margin:0 auto;position:relative;z-index:10}
+.header{background:rgba(21,33,42,0.98);backdrop-filter:blur(15px);border-radius:12px;padding:25px 35px;margin-bottom:25px;border:2px solid rgba(100,181,246,0.3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+.profile-main{display:flex;align-items:center;gap:20px}
+.avatar{width:80px;height:80px;position:relative;display:flex;align-items:center;justify-content:center}
+.avatar img.avatar-img{width:80px;height:80px;object-fit:cover;border-radius:12px;display:none;z-index:1}
+.avatar .avatar-placeholder{width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f,#1976d2);color:#fff;font-weight:700;font-size:24px;border-radius:12px;z-index:1}
+.avatar .frame-img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;pointer-events:none;display:none;z-index:2}
+.avatar .frame-img.active{display:block}
+.profile-text h1{color:#64b5f6;font-size:24px;margin-bottom:4px}
+.profile-meta{display:flex;gap:16px;font-size:13px;color:#b0bec5;flex-wrap:wrap}
+.balance{background:#1e3a5f;color:#fff;padding:12px 24px;border-radius:12px;font-size:18px;font-weight:700;border:2px solid rgba(100,181,246,0.5)}
+.nav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
+@media(max-width:700px){.nav-grid{grid-template-columns:1fr}}
+.nav-card{background:rgba(21,33,42,0.98);border:2px solid rgba(30,42,56,0.6);border-radius:12px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;backdrop-filter:blur(12px)}
+.nav-icon{font-size:28px;width:56px;height:56px;background:rgba(30,42,56,0.95);border-radius:12px;display:flex;align-items:center;justify-content:center;border:3px solid rgba(42,52,68,0.8)}
+.nav-title{font-weight:700;font-size:16px}
+.nav-desc{font-size:12px;color:#8a9ba8}
+.tabs{display:flex;gap:10px;margin-bottom:24px;background:rgba(21,33,42,0.98);padding:8px;border-radius:12px;border:2px solid rgba(30,42,56,0.6)}
+.tab-btn{flex:1;background:none;border:none;padding:12px;border-radius:10px;cursor:pointer;color:#b0bec5;font-size:14px;font-weight:600}
+.tab-btn.active{background:#1976d2;color:#fff}
+.section{display:none}.section.active{display:block}
+.card{background:rgba(21,33,42,0.98);border-radius:12px;padding:24px;border:2px solid rgba(30,42,56,0.6);margin-bottom:20px;backdrop-filter:blur(12px)}
+.card-title{color:#64b5f6;font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid rgba(100,181,246,0.3)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-box{background:rgba(26,38,51,0.95);border-radius:12px;padding:18px;text-align:center;border:2px solid rgba(34,48,64,0.6)}
+.stat-val{font-size:26px;font-weight:800;color:#64b5f6}
+.stat-lbl{font-size:12px;color:#90a4ae;margin-top:6px}
+.progress-row{margin-bottom:16px}
+.progress-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.progress-track{height:10px;background:rgba(30,42,56,0.95);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;background:#64b5f6;border-radius:6px}
+.achievements-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.achievement{background:rgba(26,38,51,0.95);border-radius:12px;padding:18px 14px;text-align:center;border:3px solid transparent;position:relative}
+.achievement.unlocked{border-color:#4caf50}.achievement.locked{opacity:0.7}
+.ach-icon{width:64px;height:64px;background:rgba(30,42,56,0.95);border-radius:12px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;border:3px solid rgba(42,52,68,0.8)}
+.ach-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.ach-desc{font-size:11px;color:#90a4ae}
+.ach-rarity{position:absolute;top:10px;right:10px;font-size:10px;padding:4px 8px;border-radius:6px;background:rgba(42,58,74,0.95);color:#b0bec5}
+.achievement.unlocked .ach-rarity{background:#4caf50;color:#fff}
+.activity-list{display:flex;flex-direction:column;gap:12px}
+.activity-item{display:flex;align-items:center;gap:12px;padding:14px;background:rgba(26,38,51,0.95);border-radius:10px;border:2px solid rgba(34,48,64,0.6)}
+.act-icon{width:40px;height:40px;border-radius:8px;background:rgba(30,42,56,0.95);display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid rgba(42,52,68,0.8)}
+.act-info{flex:1}.act-title{font-size:14px;font-weight:600}.act-time{font-size:11px;color:#78909c}.act-reward{font-size:13px;color:#4caf50;font-weight:600}
+</style>
+</head>
+<body>
+<div class="video-background">
+<iframe src="https://vk.com/video_ext.php?oid=-67433146&id=456514647&hd=3&autoplay=1" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+</div>
+<div class="video-overlay"></div>
+<div class="container">
+<header class="header">
+<div class="profile-main">
+<div class="avatar" id="avatar">
+<img class="avatar-img" id="avatarImg" src="ava.jpeg" alt="Аватар">
+<span class="avatar-placeholder" id="avatarPlaceholder">A1</span>
+<img class="frame-img" id="frameImg" src="" alt="Рамка">
+</div>
+<div class="profile-text">
+<h1 id="username">Мега скебоб</h1>
+<div class="profile-meta">
+<span>Ур. <b id="level">7</b></span>
+<span><b id="visits">42</b> игр</span>
+<span><b id="tournaments">12</b> турниров</span>
+</div>
+</div>
+</div>
+<div class="balance" id="balance">1000 ₽</div>
+</header>
+<nav class="nav-grid">
+<div class="nav-card shop" onclick="openTab('shop.html')">
+<div class="nav-icon">🛒</div>
+<div><div class="nav-title">Магазин</div><div class="nav-desc">Предметы и скины</div></div>
+</div>
+<div class="nav-card inventory" onclick="openTab('inventory.html')">
+<div class="nav-icon">📦</div>
+<div><div class="nav-title">Инвентарь</div><div class="nav-desc">Ваши коллекции</div></div>
+</div>
+</nav>
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('overview')">📊 Обзор</button>
+<button class="tab-btn" onclick="switchTab('achievements')">🏆 Достижения</button>
+</div>
+<div id="overview" class="section active">
+<div class="card"><div class="card-title">📈 Статистика</div>
+<div class="stats-grid">
+<div class="stat-box"><div class="stat-val" id="matches">156</div><div class="stat-lbl">Матчей</div></div>
+<div class="stat-box"><div class="stat-val" id="wins">68%</div><div class="stat-lbl">Побед</div></div>
+<div class="stat-box"><div class="stat-val" id="items">12</div><div class="stat-lbl">Предметов</div></div>
+<div class="stat-box"><div class="stat-val" id="collections">1/4</div><div class="stat-lbl">Коллекций</div></div>
+</div>
+</div>
+<div class="card"><div class="card-title">🎯 Прогресс коллекций</div>
+<div class="progress-row"><div class="progress-head"><span>Арена Боевая</span><span>2/3</span></div><div class="progress-track"><div class="progress-fill" style="width:66%"></div></div></div>
+<div class="progress-row"><div class="progress-head"><span>Турнирный Мастер</span><span>1/5</span></div><div class="progress-track"><div class="progress-fill" style="width:20%"></div></div></div>
+</div>
+<div class="card"><div class="card-title">🕐 Активность</div>
+<div class="activity-list">
+<div class="activity-item"><div class="act-icon">🎯</div><div class="act-info"><div class="act-title">Победа в матче</div><div class="act-time">2 ч. назад</div></div><div class="act-reward">+25 ₽</div></div>
+<div class="activity-item"><div class="act-icon">🏅</div><div class="act-info"><div class="act-title">Значок «Бронировщик»</div><div class="act-time">Вчера</div></div><div class="act-reward">Редкий</div></div>
+</div>
+</div>
+</div>
+<div id="achievements" class="section">
+<div class="card"><div class="card-title">🏆 Ваши достижения</div>
+<div class="achievements-grid">
+<div class="achievement unlocked"><span class="ach-rarity">Обычный</span><div class="ach-icon">🎮</div><div class="ach-name">Первая игра</div><div class="ach-desc">Сыграйте первый матч</div></div>
+<div class="achievement unlocked"><span class="ach-rarity">Обычный</span><div class="ach-icon">⭐</div><div class="ach-name">Новичок</div><div class="ach-desc">Достигните 5 уровня</div></div>
+<div class="achievement unlocked"><span class="ach-rarity">Редкий</span><div class="ach-icon">🏅</div><div class="ach-name">Бронировщик</div><div class="ach-desc">10 побед подряд</div></div>
+<div class="achievement locked"><span class="ach-rarity">Эпик</span><div class="ach-icon">👑</div><div class="ach-name">Легенда</div><div class="ach-desc">Выиграйте турнир</div></div>
+<div class="achievement locked"><span class="ach-rarity">Легендарный</span><div class="ach-icon">💎</div><div class="ach-name">Коллекционер</div><div class="ach-desc">Соберите всё</div></div>
+<div class="achievement locked"><span class="ach-rarity">Обычный</span><div class="ach-icon">🎯</div><div class="ach-name">Снайпер</div><div class="ach-desc">100 попаданий</div></div>
+</div>
+</div>
+</div>
+</div>
+<script src="items.js"></script>
+<script>
+function loadProfile(){
+const eq = JSON.parse(localStorage.getItem('equipped')) || {avatar:'av1', frame:'fr1'};
+const balance = localStorage.getItem('balance') || 1000;
+const avatarImg = document.getElementById('avatarImg');
+const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+avatarImg.onerror = function() { this.style.display = 'none'; avatarPlaceholder.style.display = 'flex'; };
+avatarImg.onload = function() { this.style.display = 'block'; avatarPlaceholder.style.display = 'none'; };
+if(avatarImg.complete && avatarImg.naturalWidth !== 0) { avatarImg.onload(); }
+const frameImg = document.getElementById('frameImg');
+const frameId = eq.frame || 'fr1';
+const frameItem = ITEMS_DB.find(i => i.id === frameId);
+frameImg.classList.remove('active');
+frameImg.src = '';
+const purchased = JSON.parse(localStorage.getItem('purchased') || '["fr1"]');
+if(frameItem && frameItem.image && purchased.includes(frameId)){
+const src = frameItem.image.trim() + '?t=' + Date.now();
+frameImg.src = src;
+frameImg.onload = function() { frameImg.classList.add('active'); };
+frameImg.onerror = function() { frameImg.classList.remove('active'); };
+if(frameImg.complete) { frameImg.onload(); }
+}
+document.getElementById('balance').textContent = balance + ' ₽';
+}
+function switchTab(id){
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.target.classList.add('active');
+}
+function openTab(url){ window.open(url, '_blank'); }
+document.addEventListener('DOMContentLoaded', loadProfile);
+window.addEventListener('storage', (e) => { if(['equipped','balance','purchased'].includes(e.key)) loadProfile(); });
+setInterval(() => {
+const eq = JSON.parse(localStorage.getItem('equipped') || '{}');
+const frameImg = document.getElementById('frameImg');
+const currentSrc = frameImg.src;
+const frameItem = ITEMS_DB.find(i => i.id === eq.frame);
+if(frameItem && frameItem.image){
+const expectedSrc = frameItem.image.trim() + '?t=';
+if(!currentSrc.includes(frameItem.id) || !frameImg.classList.contains('active')){ loadProfile(); }
+}
+}, 2000);
+</script>
+</body>
+</html>
